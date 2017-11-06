@@ -1,9 +1,3 @@
-package com.zenchn.farmhouseinspection.widget.recyclerviewclick;
-
-import android.support.v7.widget.RecyclerView;
-import android.view.View;
-
-import com.zenchn.farmhouseinspection.R;
 
 /**
  * 作   者： by Hzj on 2017/11/6/006.
