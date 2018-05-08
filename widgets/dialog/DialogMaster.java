@@ -1,12 +1,16 @@
-package cc.pachira.support.widget;
+package cn.hzjdemo.support.widget.dialog;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import android.support.v7.app.AlertDialog;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,17 +18,22 @@ import java.util.Map;
 
 /**
  * Dialog 弹窗工具类
+ * author:hzj 使用Dialog类，并使用setContentView()方法设置时，宽度两边无边距。
+ * 使用AlertDialog时宽度两边有边距。
  */
 public class DialogMaster {
     public DialogMaster() {
     }
 
-    private AlertDialog alertDialog;
+    private AlertDialog mDialog;
+    private View mContentView;
 
-    public int x = 0;
-    public int y = 0;
+    //宽，默认wrap_content
+    private int mDialogWidth = ViewGroup.LayoutParams.MATCH_PARENT;
+    //高，默认wrap_content
+    private int mDialogHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-    public int gravity;
+    public int mGravity;
 
     public static class Builder {
         public Builder() {
@@ -40,11 +49,12 @@ public class DialogMaster {
         private int layout;
         private boolean cancelabe = true;
         private boolean canceledOnTouchOutside = true;
+        //宽，默认wrap_content
+        private int dialogWidth = ViewGroup.LayoutParams.MATCH_PARENT;
+        //高，默认wrap_content
+        private int dialogHeight = ViewGroup.LayoutParams.WRAP_CONTENT;
 
-        private int x = 0;
-        private int y = 0;
-
-        private int gravity;
+        private int gravity = Gravity.CENTER;
 
         private DialogInterface.OnDismissListener dl;
 
@@ -68,13 +78,13 @@ public class DialogMaster {
         }
 
 
-        public Builder setPositionX(int x) {
-            this.x = x;
+        public Builder setDialogWidth(int width) {
+            this.dialogWidth = width;
             return this;
         }
 
-        public Builder setPositionY(int y) {
-            this.y = y;
+        public Builder setDialogHeight(int height) {
+            this.dialogHeight = height;
             return this;
         }
 
@@ -87,7 +97,6 @@ public class DialogMaster {
             this.canceledOnTouchOutside = f;
             return this;
         }
-
 
         public Builder setDismissListener(DialogInterface.OnDismissListener dl) {
             this.dl = dl;
@@ -106,48 +115,61 @@ public class DialogMaster {
 
         public DialogMaster create() {
             final AlertDialog.Builder builder = new AlertDialog.Builder(this.context);
-
-            final View content = LayoutInflater.from(this.context).inflate(this.layout, null);
-
-            builder.setView(content);
+            AlertDialog dialog = builder.create();
+            final View contentView = LayoutInflater.from(this.context).inflate(this.layout, null);
 
             if (this.layoutInit != null) {
-                layoutInit.OnWindowLayoutInit(content);
+                layoutInit.OnWindowLayoutInit(contentView);
             }
 
             for (Integer id : listeners.keySet()) {
-                View item = content.findViewById(id);
+                View item = contentView.findViewById(id);
                 item.setOnClickListener(this.listeners.get(id));
             }
 
-            final AlertDialog alertDialog = builder.create();
+            dialog.setCancelable(this.cancelabe);
+            dialog.setCanceledOnTouchOutside(this.canceledOnTouchOutside);
 
-            alertDialog.setCancelable(this.cancelabe);
-            alertDialog.setCanceledOnTouchOutside(this.canceledOnTouchOutside);
-            //消除背景色
-            alertDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            //消除背景色，此方法设置后才能Match_parent
+            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
 
-            if (dl != null)
-                alertDialog.setOnDismissListener(dl);
+            if (dl != null) {
+                dialog.setOnDismissListener(dl);
+            }
 
             DialogMaster mask = new DialogMaster();
-            mask.alertDialog = alertDialog;
-            mask.x = this.x;
-            mask.y = this.y;
-            mask.gravity = this.gravity;
+            mask.mDialog = dialog;
+            mask.mDialogWidth = this.dialogWidth;
+            mask.mDialogHeight = this.dialogHeight;
+            mask.mGravity = this.gravity;
+            mask.mContentView = contentView;
 
             return mask;
         }
     }
 
     public void show() {
-        if (alertDialog != null && !alertDialog.isShowing()) {
-            alertDialog.show();
+        if (mDialog != null && !mDialog.isShowing()) {
+            mDialog.show();
+            //设置dialog的宽高为屏幕的宽高
+            Window window = mDialog.getWindow();
+            window.setGravity(mGravity);
+            //todo 添加动画
+//            window.setWindowAnimations(R.style.dialog_animation);
+            window.getDecorView().setPadding(0, 0, 0, 0);
+
+            WindowManager.LayoutParams lp = window.getAttributes();
+            lp.width = mDialogWidth;
+            lp.height = mDialogHeight;
+            window.setAttributes(lp);
+            //setContentView()必须在show()之后
+            mDialog.setContentView(mContentView);
         }
     }
 
     public void dismiss() {
-        if (alertDialog != null && alertDialog.isShowing())
-            alertDialog.dismiss();
+        if (mDialog != null && mDialog.isShowing()) {
+            mDialog.dismiss();
+        }
     }
 }
