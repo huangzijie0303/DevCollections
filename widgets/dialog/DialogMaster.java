@@ -167,9 +167,85 @@ public class DialogMaster {
         }
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void showRippleAnimator() {
+        mContentView.post(new Runnable() {
+            @Override
+            public void run() {
+                Animator circularReveal = ViewAnimationUtils.createCircularReveal(mContentView,
+                        (int) (mContentView.getWidth() * 0.5F),
+                        mContentView.getHeight(),
+                        0,
+                        (float) Math.hypot(mContentView.getWidth(), mContentView.getHeight()));
+                circularReveal.setDuration(1000);
+                circularReveal.setInterpolator(new AnticipateOvershootInterpolator());
+                circularReveal.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                circularReveal.start();
+            }
+        });
+    }
+
     public void dismiss() {
         if (mDialog != null && mDialog.isShowing()) {
             mDialog.dismiss();
         }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    private void dismissRippleAnimator(){
+        mContentView.post(new Runnable() {
+            @Override
+            public void run() {
+                Animator circularReveal = ViewAnimationUtils.createCircularReveal(mContentView,
+                        (int) (mContentView.getWidth() * 0.5F),
+                        mContentView.getHeight(),
+                        (float) Math.hypot(mContentView.getWidth(), mContentView.getHeight()),
+                        0);
+                circularReveal.setDuration(500);
+                circularReveal.setInterpolator(new AccelerateInterpolator());
+                circularReveal.addListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        mDialog.dismiss();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation) {
+
+                    }
+                });
+                circularReveal.start();
+            }
+        });
     }
 }
