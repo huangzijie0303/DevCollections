@@ -12,3 +12,19 @@
 maven { url 'http://maven.aliyun.com/nexus/content/groups/public/' }
 maven { url 'http://maven.aliyun.com/nexus/content/repositories/jcenter' }
 ```
+## 统一管理support依赖版本,在project的build.gradle中添加：
+```
+ext {
+    supportlib_version = '28.0.0'
+}
+subprojects {
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.support'
+                    && !details.requested.name.contains('multidex')) {
+                details.useVersion "$supportlib_version"
+            }
+        }
+    }
+}
+```
