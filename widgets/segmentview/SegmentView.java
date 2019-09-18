@@ -113,40 +113,6 @@ public class SegmentView extends View {
 
     }
 
-
-    private OnSegmentSelectedListener mListener;
-
-    public int getCurrentIndex() {
-        return mCurrentIndex;
-    }
-
-    public void setOnItemSelectedListener(OnSegmentSelectedListener listener) {
-        mListener = listener;
-    }
-
-    public void setTitles(String segmentTexts) {
-        if (TextUtils.isEmpty(segmentTexts)) {
-            return;
-        }
-        String[] texts = segmentTexts.split("\\|");
-        if (texts.length == 0) {
-            return;
-        }
-        List<String> list = new ArrayList<>();
-        for (String s : texts) {
-            if (TextUtils.isEmpty(s.replaceAll("[ ]*", ""))) {
-                continue;
-            }
-            list.add(s);
-        }
-        mTitleList = list;
-        mRects = new Rect[mTitleList.size()];
-        for (int i = 0; i < mRects.length; i++) {
-            mRects[i] = new Rect();
-        }
-        requestLayout();
-    }
-
     Rect mTemp = new Rect();
 
     @Override
@@ -280,6 +246,8 @@ public class SegmentView extends View {
         }
     }
 
+    //-----------------------------------------------public-----------------------------------------------------
+
     public interface OnSegmentSelectedListener {
 
         /**
@@ -289,5 +257,51 @@ public class SegmentView extends View {
          * @param text
          */
         void onSegmentSelected(int index, String text);
+    }
+
+    private OnSegmentSelectedListener mListener;
+
+    /**
+     * 获取当前选中位置
+     * @return
+     */
+    public int getSelectedIndex() {
+        return mCurrentIndex;
+    }
+
+    /**
+     * 设置选中位置
+     * @param index
+     */
+    public void setSelected(int index){
+        mCurrentIndex=index;
+        invalidate();
+    }
+
+    public void setOnItemSelectedListener(OnSegmentSelectedListener listener) {
+        mListener = listener;
+    }
+
+    public void setTitles(String segmentTexts) {
+        if (TextUtils.isEmpty(segmentTexts)) {
+            return;
+        }
+        String[] texts = segmentTexts.split("\\|");
+        if (texts.length == 0) {
+            return;
+        }
+        List<String> list = new ArrayList<>();
+        for (String s : texts) {
+            if (TextUtils.isEmpty(s.replaceAll("[ ]*", ""))) {
+                continue;
+            }
+            list.add(s);
+        }
+        mTitleList = list;
+        mRects = new Rect[mTitleList.size()];
+        for (int i = 0; i < mRects.length; i++) {
+            mRects[i] = new Rect();
+        }
+        requestLayout();
     }
 }
