@@ -9,7 +9,8 @@
 
 当然 Fragment 也要实现 FragmentBackHandler接口(按需)
 //没有处理back键需求的Fragment不用实现
-```public abstract class BackHandledFragment extends Fragment implements FragmentBackHandler {
+```
+public abstract class BackHandledFragment extends Fragment implements FragmentBackHandler {
     @Override
     public boolean onBackPressed() {
         return BackHandlerHelper.handleBackPress(this);
