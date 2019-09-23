@@ -9,14 +9,16 @@
 
 当然 Fragment 也要实现 FragmentBackHandler接口(按需)
 //没有处理back键需求的Fragment不用实现
-public abstract class BackHandledFragment extends Fragment implements FragmentBackHandler {
+```public abstract class BackHandledFragment extends Fragment implements FragmentBackHandler {
     @Override
     public boolean onBackPressed() {
         return BackHandlerHelper.handleBackPress(this);
     }
 }
+```
 
 Activity覆盖onBackPressed方法（必须）
+```
 public class MyActivity extends FragmentActivity {
     //.....
     @Override
@@ -26,8 +28,10 @@ public class MyActivity extends FragmentActivity {
         }
     }
 }
+```
 
 fragment中，当你需要自己处理back事件时覆盖onBackPressed方法,如：
+```
 @Override
 public boolean onBackPressed() {
 // 当确认没有子Fragmnt时可以直接return false
@@ -38,3 +42,4 @@ public boolean onBackPressed() {
         return BackHandlerHelper.handleBackPress(this);
     }
 }
+```
