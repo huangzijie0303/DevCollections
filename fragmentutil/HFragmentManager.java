@@ -28,11 +28,11 @@ public class HFragmentManager {
         this.mContainerViewId = containerViewId;
     }
 
-    /**
+   /**
      * 添加Fragment
-     * 此方法必须先调用
+     * 此方法必须先调用,参数可为多个，默认只显示第一个fragment，第二个参数以后作为预加载
      */
-    public void add(Fragment fragment) {
+    public void add(Fragment... fragment) {
         if (fragment == null) {
             throw new IllegalStateException("you must call add(Fragment fragment) first!");
         }
@@ -40,7 +40,18 @@ public class HFragmentManager {
         // 开启事物
         FragmentTransaction fragmentTransaction = mFragmentManager.beginTransaction();
         // 第一个参数是Fragment的容器id，需要添加的Fragment
-        fragmentTransaction.add(mContainerViewId, fragment);
+        for (Fragment f : fragment) {
+            fragmentTransaction.add(mContainerViewId, f);
+        }
+        //默认显示第一个，后面的隐藏
+        for (int i = 0; i < fragment.length; i++) {
+            Fragment f = fragment[i];
+            if (i == 0) {
+                fragmentTransaction.show(f);
+            } else {
+                fragmentTransaction.hide(f);
+            }
+        }
         // 一定要commit
         fragmentTransaction.commit();
     }
