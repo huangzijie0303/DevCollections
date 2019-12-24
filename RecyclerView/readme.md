@@ -1,6 +1,6 @@
 # Recyclerview 相关
 
-## 使用说明：
+## RecyclerViewDivider使用说明：
 ```
 RecyclerViewDivider divider = new RecyclerViewDivider.Builder(this)
     .setStyle(RecyclerViewDivider.Style.BETWEEN)
