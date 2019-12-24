@@ -21,7 +21,7 @@ class SmartDecoration(
             context: Context, @DrawableRes drawableRes: Int,
             verticalListDivider: Boolean = true
     ) : this(
-            divider = context.resources.getDrawable(drawableRes),
+            divider = context.resources.getDrawable(drawableRes, null),
             verticalListDivider = verticalListDivider
     )
 
