@@ -1,0 +1,152 @@
+/**
+ * 作   者：wangr on 2019/12/5 9:36
+ * 描   述：分隔线
+ * 修订记录：
+ */
+class SmartDecoration(
+        private val divider: Drawable,
+        private val verticalListDivider: Boolean = true
+) : RecyclerView.ItemDecoration() {
+
+    constructor(context: Context, verticalListDivider: Boolean = true) : this(
+            divider = context.obtainStyledAttributes(intArrayOf(android.R.attr.listDivider)).run {
+                val divider = getDrawable(0)
+                recycle()
+                divider ?: throw IllegalStateException()
+            },
+            verticalListDivider = verticalListDivider
+    )
+
+    constructor(
+            context: Context, @DrawableRes drawableRes: Int,
+            verticalListDivider: Boolean = true
+    ) : this(
+            divider = context.resources.getDrawable(drawableRes),
+            verticalListDivider = verticalListDivider
+    )
+
+    private fun getSpanCount(parent: RecyclerView): Int {
+        // 列数
+        return when (val layoutManager = parent.layoutManager) {
+            is GridLayoutManager -> layoutManager.spanCount
+            is StaggeredGridLayoutManager -> layoutManager.spanCount
+            else -> -1
+        }
+    }
+
+    override fun onDraw(c: Canvas, parent: RecyclerView, state: RecyclerView.State) {
+        super.onDraw(c, parent, state)
+        if (verticalListDivider) drawVertical(c, parent)
+        else drawHorizontal(c, parent)
+    }
+
+    private fun drawVertical(c: Canvas, parent: RecyclerView) {
+        c.save()
+        val left = parent.paddingLeft
+        val right = parent.width - parent.paddingRight
+
+        val childCount = parent.childCount
+
+        for (i in 0 until childCount) {
+            val child = parent.getChildAt(i)
+            val params = child.layoutParams as RecyclerView.LayoutParams
+            val top = child.bottom + params.bottomMargin
+            val bottom = top + divider.intrinsicHeight
+            divider.setBounds(left, top, right, bottom)
+            divider.draw(c)
+        }
+        c.restore()
+    }
+
+    private fun drawHorizontal(c: Canvas, parent: RecyclerView) {
+        c.save()
+        val top = parent.paddingTop
+        val bottom = parent.height - parent.paddingBottom
+
+        val childCount = parent.childCount
+        for (i in 0 until childCount) {
+            val child = parent.getChildAt(i)
+            val params = child.layoutParams as RecyclerView.LayoutParams
+            val left = child.right + params.rightMargin
+            val right = left + divider.intrinsicHeight
+            divider.setBounds(left, top, right, bottom)
+            divider.draw(c)
+        }
+        c.restore()
+    }
+
+    private fun isLastColumn(parent: RecyclerView, pos: Int, spanCount: Int, count: Int): Boolean {
+        var childCount = count
+        val layoutManager = parent.layoutManager
+        if (layoutManager is GridLayoutManager) {
+            if ((pos + 1) % spanCount == 0) {
+                return true// 如果是最后一列，则不需要绘制右边
+            }
+        } else if (layoutManager is StaggeredGridLayoutManager) {
+            if (layoutManager.orientation == StaggeredGridLayoutManager.VERTICAL) {
+                if ((pos + 1) % spanCount == 0) {
+                    return true   // 如果是最后一列，则不需要绘制右边
+                }
+            } else {
+                childCount -= childCount % spanCount
+                if (pos >= childCount) {
+                    return true  // 如果是最后一列，则不需要绘制右边
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isLastRaw(parent: RecyclerView, pos: Int, spanCount: Int, count: Int): Boolean {
+        var childCount = count
+        val layoutManager = parent.layoutManager
+        if (layoutManager is GridLayoutManager) {
+            childCount -= childCount % spanCount
+            if (pos >= childCount) {
+                return true // 如果是最后一行，则不需要绘制底部
+            }
+        } else if (layoutManager is StaggeredGridLayoutManager) {
+            // StaggeredGridLayoutManager 且纵向滚动
+            if (layoutManager.orientation == StaggeredGridLayoutManager.VERTICAL) {
+                childCount -= childCount % spanCount
+                // 如果是最后一行，则不需要绘制底部
+                if (pos >= childCount) {
+                    return true
+                }
+            } else {
+                // StaggeredGridLayoutManager 且横向滚动
+                // 如果是最后一行，则不需要绘制底部
+                if ((pos + 1) % spanCount == 0) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    override fun getItemOffsets(
+            outRect: Rect,
+            view: View,
+            parent: RecyclerView,
+            state: RecyclerView.State
+    ) {
+        super.getItemOffsets(outRect, view, parent, state)
+        val itemPosition = (view.layoutParams as RecyclerView.LayoutParams).viewLayoutPosition
+        if (verticalListDivider) {
+            val spanCount = getSpanCount(parent)
+            val childCount = parent.adapter!!.itemCount
+            if (isLastRaw(parent, itemPosition, spanCount, childCount)) {// 如果是最后一行，则不需要绘制底部
+                return
+            }
+            outRect.set(0, 0, 0, divider.intrinsicHeight)
+        } else {
+            val spanCount = getSpanCount(parent)
+            val childCount = parent.adapter!!.itemCount
+            if (isLastColumn(parent, itemPosition, spanCount, childCount)) {// 如果是最后一行，则不需要绘制底部
+                return
+            }
+            outRect.set(0, 0, divider.intrinsicWidth, 0)
+        }
+    }
+
+}
