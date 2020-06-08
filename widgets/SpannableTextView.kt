@@ -84,13 +84,13 @@ class SpannableTextView : AppCompatTextView, ViewTreeObserver.OnGlobalLayoutList
         mLength = 0
     }
 
-     /**
+    /**
      * 在列表中使用时，要先调用此方法清空文本，避免列表刷新时重复添加文本
      */
-    public SpannableTextView clearWhenUseInList() {
-        setText(null);
-        mLength = 0;
-        return this;
+    fun clearWhenUseInList(): SpannableTextView {
+        text = null
+        mLength = 0
+        return this
     }
     
     /**
